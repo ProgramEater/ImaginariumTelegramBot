@@ -112,7 +112,7 @@ def vote_line_img(vote_line, chat_id):
         surface.blit(a, (x, y))
         surface.blit(text, (x + x_size // 2, y - 120))
 
-    filename = f'data/players/chat_{chat_id}.png'
+    filename = f'data/players/vote_chat_{chat_id}.png'
     pygame.image.save(surface.subsurface(0, 0, col_count * (x_size + x_gap) + x_gap,
                                          str_count * (y_size + y_gap) + y_gap),
                       filename)

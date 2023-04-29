@@ -1,11 +1,10 @@
 import logging
 import math
 import os
-import pprint
 
 import telegram.error
-from telegram.ext import Application, MessageHandler, filters, CommandHandler, CallbackQueryHandler, ConversationHandler
-from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from Game import Imaginarium
 
