@@ -117,6 +117,3 @@ def vote_line_img(vote_line, chat_id):
                                          str_count * (y_size + y_gap) + y_gap),
                       filename)
     return filename
-
-
-vote_line_img(['1.png', '2.png', '4.png', '7.png', '2.png'], 34)

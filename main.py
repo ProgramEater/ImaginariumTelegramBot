@@ -1,13 +1,19 @@
 import logging
 import math
+import os
 import pprint
 
 import telegram.error
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, CallbackQueryHandler, ConversationHandler
 from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 
-from config import BOT_TOKEN
 from Game import Imaginarium
+
+from dotenv import load_dotenv
+
+# get token from .env
+load_dotenv()
+BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 # Запускаем логгирование
 logging.basicConfig(
@@ -166,6 +172,7 @@ async def callback_solver(update, context):
             await context.bot.send_message(chat_id=game.main_chat_id, text=f'Игра '
                                                                            f'{game.get_player_by_user(game.host).name} '
                                                                            f'окончена! Всем спасибо!🙂')
+            game.delete_used_images()
             games.pop(games.index(game))
             game.players = []
             return
@@ -299,6 +306,8 @@ async def delete_game(update, context):
                                    text=f'игра, хостом которой являлся {game.get_player_by_user(game.host).name},'
                                         f' была им удалена')
     games.pop(games.index(game))
+    # delete used images
+    game.delete_used_images()
 
     username = f'[{update.message.from_user.first_name}](tg://user?id={update.message.from_user.id})'
     await update.message.reply_text(f'{username} ваша игра удалена', parse_mode='Markdown')
@@ -385,6 +394,7 @@ async def choose_first_card(update, context):
             await update.message.reply_text(resp['error'])
             return
 
+        await update.message.reply_text('Карта выбрана')
         # send image description to main chat of the game
         await context.bot.send_message(chat_id=game.main_chat_id,
                                        text=f'выбранная ассоциация: \n'
@@ -427,9 +437,9 @@ async def quit_game(update, context):
 
     # if player is last player
     if len(game.players) == 1:
-        if not game.game_on:
-            await update.message.reply_text(f'Из игры {player.name} вышел последний игрок, она была удалена')
+        await update.message.reply_text(f'Из игры {player.name} вышел последний игрок, она была удалена')
         games.pop(games.index(game))
+        game.delete_used_images()
 
     # if player is host
     elif update.message.from_user == game.host:

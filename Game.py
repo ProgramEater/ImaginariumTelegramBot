@@ -79,6 +79,9 @@ class Imaginarium:
         # if game is active - True else False
         self.game_on = False
 
+        # names of used images
+        self.used_images = list()
+
     def add_player(self, player):
         # player: telegram.User
         if not self.game_on:
@@ -109,7 +112,11 @@ class Imaginarium:
 
         self.vote_line = [i.chosen_card for i in self.players]
         shuffle(self.vote_line)
-        return {'image': vote_line_img(self.vote_line, self.main_chat_id)}
+
+        # make an image and send name
+        img_name = vote_line_img(self.vote_line, self.main_chat_id)
+        self.used_images.append(img_name)
+        return {'image': img_name}
 
     def conclusion(self):
         # all players excluding current player
@@ -150,8 +157,10 @@ class Imaginarium:
         # response
         resp = dict()
 
-        # make an image (whose card was each card)
-        resp['img'] = players_chosen_cards_img(self.players, self.main_chat_id, self.vote_line)
+        # make an image (whose card was each card) and add to response
+        res_img = players_chosen_cards_img(self.players, self.main_chat_id, self.vote_line)
+        self.used_images.append(res_img)
+        resp['img'] = res_img
 
         # pick next current player
         self.current_player = self.queue[(self.queue.index(self.current_player) + 1) % len(self.queue)]
@@ -187,8 +196,9 @@ class Imaginarium:
 
     def get_player_cards_image(self, player):
         try:
-            print(self.players[0].user, player)
-            return player_cards_img(player.user.id, list(filter(lambda x: x == player, self.players))[0].cards)
+            cards_img = player_cards_img(player.user.id, list(filter(lambda x: x == player, self.players))[0].cards)
+            self.used_images.append(cards_img)
+            return cards_img
         except IndexError:
             return 'error'
 
@@ -197,3 +207,7 @@ class Imaginarium:
             return list(filter(lambda x: user == x.user, self.players))[0]
         except IndexError:
             return None
+
+    def delete_used_images(self):
+        for i in self.used_images:
+            os.remove(i)
